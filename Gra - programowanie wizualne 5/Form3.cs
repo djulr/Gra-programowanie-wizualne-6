@@ -143,10 +143,28 @@ namespace Gra___programowanie_wizualne_5
                     break;
 
                 case "K":
+                    if (btn.BackColor == Color.Red)
+                    {
+                        
+                        btn.BackColor = Color.LightGray;
+                        btn.Text = "";
+                        btn.Enabled = true; 
+                        if (btn.Tag is System.Windows.Forms.Timer existingTimer)
+                        {
+                            existingTimer.Stop();
+                            btn.Tag = null;
+                        }
+                        MessageBox.Show("Udało ci się uciec przed krokodylem!");
+                        break;
+                    }
+
                     btn.BackColor = Color.Red;
                     btn.Text = "K";
                     btn.Enabled = false;
+
                     System.Windows.Forms.Timer krokTimer = new System.Windows.Forms.Timer { Interval = 2000 };
+                    btn.Tag = krokTimer; 
+
                     krokTimer.Tick += (s, ev) =>
                     {
                         krokTimer.Stop();
@@ -157,37 +175,54 @@ namespace Gra___programowanie_wizualne_5
                             this.Close();
                         }
                     };
+
                     krokTimer.Start();
                     break;
             }
+            
         }
 
         private void ZamknijSzopa(int x, int y)
         {
-            System.Windows.Forms.Timer szopTimer = new System.Windows.Forms.Timer { Interval = 2000 };
-            szopTimer.Tick += (s, e) =>
+
+            // Lista współrzędnych sąsiadujących pól
+            var sasiednie = new List<Point>();
+
+            for (int dx = -1; dx <= 1; dx++)
             {
-                szopTimer.Stop();
                 for (int dy = -1; dy <= 1; dy++)
                 {
-                    for (int dx = -1; dx <= 1; dx++)
+                    int nx = x + dx;
+                    int ny = y + dy;
+
+                    if ((dx != 0 || dy != 0) && nx >= 0 && ny >= 0 && nx < settings.columns && ny < settings.rows)
                     {
-                        int nx = x + dx;
-                        int ny = y + dy;
-                        if (nx >= 0 && ny >= 0 && nx < settings.columns && ny < settings.rows)
-                        {
-                            var b = przyciski[ny, nx];
-                            if (b.Enabled)
-                            {
-                                b.Text = "?";
-                                b.Enabled = false;
-                                b.BackColor = Color.DarkGray;
-                            }
-                        }
+                        sasiednie.Add(new Point(nx, ny));
                     }
                 }
-            };
-            szopTimer.Start();
+            }
+
+            foreach (var pt in sasiednie)
+            {
+                var btn = przyciski[pt.Y, pt.X];
+                if (!btn.Enabled) continue; // Nie modyfikuj już odkrytych
+
+                string oryginalnaZawartosc = zawartosc[pt.Y, pt.X];
+
+                // Tymczasowo zakryj zawartość
+                btn.Text = "?";
+                btn.BackColor = Color.DarkGray;
+
+                var timer = new System.Windows.Forms.Timer { Interval = 1000 };
+                timer.Tick += (s, e) =>
+                {
+                    timer.Stop();
+                    btn.Text = "";
+                    btn.BackColor = Color.Gray;
+                };
+                timer.Start();
+            }
+
         }
     }
 }

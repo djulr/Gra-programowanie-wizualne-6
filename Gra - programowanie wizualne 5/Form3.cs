@@ -157,10 +157,10 @@ namespace Gra___programowanie_wizualne_5
                         break;
                     }
 
-                    // Pierwsze kliknięcie - aktywujemy krokodyla
+                  
                     btn.BackColor = Color.Red;
                     btn.Text = "K";
-                    btn.Enabled = true; // musi być aktywny, żeby dało się kliknąć drugi raz
+                    btn.Enabled = true;
 
                     FormsTimer krokTimer = new FormsTimer { Interval = 2000 };
 
@@ -186,7 +186,7 @@ namespace Gra___programowanie_wizualne_5
         private void ZamknijSzopa(int x, int y)
         {
 
-            // Lista współrzędnych sąsiadujących pól
+           
             var sasiednie = new List<Point>();
 
             for (int dx = -1; dx <= 1; dx++)
@@ -206,11 +206,10 @@ namespace Gra___programowanie_wizualne_5
             foreach (var pt in sasiednie)
             {
                 var btn = przyciski[pt.Y, pt.X];
-                if (!btn.Enabled) continue; // Nie modyfikuj już odkrytych
+                if (!btn.Enabled) continue; 
 
                 string oryginalnaZawartosc = zawartosc[pt.Y, pt.X];
 
-                // Tymczasowo zakryj zawartość
                 btn.Text = "?";
                 btn.BackColor = Color.DarkGray;
 

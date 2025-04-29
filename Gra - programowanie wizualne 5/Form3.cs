@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
+using FormsTimer = System.Windows.Forms.Timer;
 namespace Gra___programowanie_wizualne_5
 {
 
@@ -23,7 +24,7 @@ namespace Gra___programowanie_wizualne_5
         private int znalezioneDydelfy = 0;
         private System.Windows.Forms.Timer timer;
         private int czasDoKonca;
-
+        private Dictionary<Button, FormsTimer> krokodyleTimery = new Dictionary<Button, FormsTimer>();
         public Form3(Settings settings)
         {
             InitializeComponent();
@@ -143,44 +144,44 @@ namespace Gra___programowanie_wizualne_5
                     break;
 
                 case "K":
-                    if (btn.BackColor == Color.Red)
+                    if (btn.BackColor == Color.Red && krokodyleTimery.TryGetValue(btn, out FormsTimer existingTimer))
                     {
-                        
+                        existingTimer.Stop();
+                        krokodyleTimery.Remove(btn);
+
                         btn.BackColor = Color.LightGray;
                         btn.Text = "";
-                        btn.Enabled = true; 
-                        if (btn.Tag is System.Windows.Forms.Timer existingTimer)
-                        {
-                            existingTimer.Stop();
-                            btn.Tag = null;
-                        }
+                        btn.Enabled = true;
+
                         MessageBox.Show("Udało ci się uciec przed krokodylem!");
                         break;
                     }
 
+                    // Pierwsze kliknięcie - aktywujemy krokodyla
                     btn.BackColor = Color.Red;
                     btn.Text = "K";
-                    btn.Enabled = false;
+                    btn.Enabled = true; // musi być aktywny, żeby dało się kliknąć drugi raz
 
-                    System.Windows.Forms.Timer krokTimer = new System.Windows.Forms.Timer { Interval = 2000 };
-                    btn.Tag = krokTimer; 
+                    FormsTimer krokTimer = new FormsTimer { Interval = 2000 };
 
                     krokTimer.Tick += (s, ev) =>
                     {
                         krokTimer.Stop();
-                        if (!btn.Enabled)
+                        if (krokodyleTimery.ContainsKey(btn))
                         {
+                            krokodyleTimery.Remove(btn);
                             timer.Stop();
                             MessageBox.Show("Zaatakował cię krokodyl! Przegrałeś.");
-                            this.Close();
+                            Close();
                         }
                     };
 
+                    krokodyleTimery[btn] = krokTimer;
                     krokTimer.Start();
                     break;
             }
-            
-        }
+
+            }
 
         private void ZamknijSzopa(int x, int y)
         {
